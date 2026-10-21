@@ -187,12 +187,17 @@ export function ContactForm() {
           className="flex h-14 items-center rounded-full border bg-white/15 transition-all border-white/20 focus-within:border-[#ff5f00]"
         >
           <div className="relative shrink-0">
+            {/* White label like the ref's config renders it (computed
+                rgb(255,255,255) on their pill) — the light-theme default
+                `text-gray-700` leaves near-black text on the glass pill. No
+                hover colour change: the ref's hover state is unknown and
+                inventing one would be a deviation. */}
             <button
               type="button"
               aria-expanded={ddOpen}
               aria-haspopup="listbox"
               onClick={() => setDdOpen((v) => !v)}
-              className="flex h-full cursor-pointer items-center gap-1 pl-4 pr-2 text-sm text-gray-700 transition-colors hover:text-gray-900"
+              className="flex h-full cursor-pointer items-center gap-1 pl-4 pr-2 text-sm text-white transition-colors"
             >
               <span className="text-base">{country.flag}</span>
               <span className="font-normal text-sm">+{country.dial}</span>
