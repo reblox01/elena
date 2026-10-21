@@ -98,13 +98,14 @@ Two Tailwind v4 traps are already fixed here — don't reintroduce them:
 1. **Never name a `:root` token the same as its `@theme inline` mapping.**
    `--text-hero: var(--text-hero)` is circular: it resolves to nothing, the
    utility never generates, and every heading silently falls back to the
-   browser default. Raw tokens are prefixed (`--type-*`, `--font-brand-*`) to
+   browser default. Raw tokens are prefixed (`--type-hero`, `--font-brand-radio`) to
    keep the two name spaces disjoint.
 
 2. **Font size must not use the `text-*` prefix.** Tailwind's `text-*` namespace
    carries *both* colour and font-size, so `text-meta` and `text-fg-faint` in
    one class string collide inside `tailwind-merge` and one of them is dropped.
-   All sizing here uses `[font-size:var(--type-*)]`, which is unambiguous.
+   All sizing here uses `[font-size:var(--type-hero)]` and friends, which is
+   unambiguous.
 
 ---
 

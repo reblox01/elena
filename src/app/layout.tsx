@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
+import { GetInTouchProvider } from "@/components/ui/get-in-touch";
 import { site } from "@/lib/data";
 
 /**
@@ -86,10 +87,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         {/*
           Smooth scroll + the GSAP ticker both live in one client provider so
-          the rAF clocks cannot drift apart. Nothing renders here.
+          the rAF clocks cannot drift apart. GetInTouchProvider sits alongside:
+          header/footer CTAs open the shared modal through context. Nothing
+          renders here until the first open.
+
+          The .brand-root wrapper is the in-tree font scope: the brand family
+          applies to everything the React tree renders, while anything portaled
+          OUT to <body> (the contact modal) escapes it and falls back to the
+          document default — the reference's own portaled modal computes the
+          system stack -apple-system/"Segoe UI", so the clone must too.
         */}
-        <SmoothScrollProvider />
-        {children}
+        <div className="brand-root">
+          <GetInTouchProvider>
+            <SmoothScrollProvider />
+            {children}
+          </GetInTouchProvider>
+        </div>
       </body>
     </html>
   );

@@ -152,8 +152,10 @@ export function WorkWithMe() {
             className="text-[5.5vw] max-[1025px]:text-[7vw] max-md:text-[9vw]"
             /* The unlayered heading identity in globals.css (lh 1.02 /
                ls -0.035em / weight 500) outranks every utility — the
-               reference's computed values are restated inline. */
-            style={{ lineHeight: 1.2, letterSpacing: "normal", fontWeight: 400 }}
+               reference's computed values are restated inline. The WWM h2
+               runs at the body's 1.5 leading in the reference, unlike the
+               services h2 which is 1.2. */
+            style={{ lineHeight: 1.5, letterSpacing: "normal", fontWeight: 400 }}
           >
             {workWithMe.heading}
           </h2>

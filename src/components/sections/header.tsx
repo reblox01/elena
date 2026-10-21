@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { ContactButton } from "@/components/ui/contact-button";
+import { ModalContactButton } from "@/components/ui/modal-contact-button";
 import { useGsapMatchMedia } from "@/components/gsap/use-gsap";
 import { gsap } from "@/components/gsap/gsap-config";
 import { site } from "@/lib/data";
@@ -109,7 +109,11 @@ export function Header() {
           <span className="sr-only">{site.name} — back to top</span>
         </a>
 
-        <ContactButton label={site.ctaLabel} href={`mailto:${site.email}`} className="shrink-0" />
+        {/* The header CTA is the bordered variant: the ref appends an explicit
+            `border border-white/20!`. Clicking it opens the Get-In-Touch modal
+            — the ref is an `<a href="#">` with a preventDefault override, and
+            there is no mailto anywhere in its bundle. */}
+        <ModalContactButton bordered className="shrink-0" />
       </div>
     </header>
   );

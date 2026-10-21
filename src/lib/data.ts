@@ -224,16 +224,6 @@ export const faqs = [
 
 /* ------------------------------------------------------------------------ */
 
-export const navLinks = [
-  { label: "Work", href: "#portfolio" },
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-  { label: "Clients", href: "#clients" },
-  { label: "FAQ", href: "#faq" },
-];
-
-/* ------------------------------------------------------------------------ */
-
 export type Social = { label: string; href: string; icon: string };
 
 /** SVG marks shipped with the reference template. */

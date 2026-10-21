@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ContactButton } from "@/components/ui/contact-button";
+import { ModalContactButton } from "@/components/ui/modal-contact-button";
 import { FooterScrubCard } from "@/components/sections/footer-scrub-card";
 import { site, socials } from "@/lib/data";
 
@@ -65,7 +65,8 @@ export async function Footer() {
               <p className="w-[75%] text-end [font-size:clamp(1.75rem,3.4vw,3.75rem)] leading-[1.15] max-[1025px]:w-full max-[1025px]:text-center max-[1025px]:[font-size:clamp(2rem,5vw,4rem)] max-md:[font-size:clamp(2.25rem,7.5vw,4.5rem)]">
                 Ready to Bring Your Vision to Life?
               </p>
-              <ContactButton label={site.ctaLabel} href={`mailto:${site.email}`} />
+              {/* Footer CTA is the same modal opener, borderless */}
+              <ModalContactButton />
             </div>
           </div>
 
@@ -108,7 +109,7 @@ export async function Footer() {
                     target="_blank"
                     rel="noopener noreferrer me"
                     aria-label={`${s.label} (opens in a new tab)`}
-                    className="relative block overflow-hidden rounded-full border bg-white/5 p-2.5 transition-all duration-300 ease-in-out group-hover:scale-[0.95] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)] motion-reduce:transition-none"
+                    className="relative block overflow-hidden rounded-full border border-white bg-white/5 p-2.5 transition-all duration-300 ease-in-out group-hover:scale-[0.95] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)] motion-reduce:transition-none"
                   >
                     <span className="absolute inset-0 z-[-1] origin-center scale-0 rounded-full bg-white transition-transform duration-300 ease-in-out group-hover:scale-100 motion-reduce:transition-none" />
                     <Image
@@ -125,7 +126,7 @@ export async function Footer() {
           </div>
         </FooterScrubCard>
 
-        <div className="flex items-end justify-between gap-10 py-8 pt-12 text-lg max-md:flex-col max-md:gap-2 max-md:text-center">
+        <div className="flex items-end justify-between gap-10 py-8 pt-12 text-lg text-foreground max-md:flex-col max-md:gap-2 max-md:text-center max-md:text-sm max-md:py-6 max-md:pt-8">
           <p>
             Copyright{" "}
             <a
@@ -134,16 +135,15 @@ export async function Footer() {
               rel="noopener noreferrer"
               className="under-multi focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
             >
-              © Elena Voss Design
+              ©
             </a>{" "}
-            {year}
+            Elena Voss Design {year}
           </p>
           <p>
             By:{" "}
+            {/* Deliberately a plain <a> — the ref ships no target or rel here. */}
             <a
               href="https://www.hyperiux.com/"
-              target="_blank"
-              rel="noopener noreferrer"
               className="under-multi focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)]"
             >
               Hyperiux

@@ -64,7 +64,7 @@
   --grad-hot: #f16b0d;
 
   /* -- typography --------------------------------------------------- */
-  /* Raw values are prefixed (--type-*, --font-brand-*) on purpose.
+  /* Raw values are prefixed (--type-hero, --font-brand-any) on purpose.
      @theme inline maps them into Tailwind's own namespaces, and a token named
      identically to its own mapping (--text-hero: var(--text-hero)) is circular:
      it resolves to nothing, the utility never generates, and every `text-hero`
@@ -162,8 +162,14 @@
    BASE
    ========================================================================== */
 
-* {
-  border-color: var(--rule);
+/* Base border colour sits in @layer base: an UNLAYERED `*` outranks every
+   Tailwind utility layer no matter the specificity, which would pin every
+   border-color utility to --rule. Layered, the utilities can win while
+   uncdot classes still get the fallback. */
+@layer base {
+  * {
+    border-color: var(--rule);
+  }
 }
 
 html {
@@ -177,7 +183,14 @@ body {
   overflow-x: clip;
   background: var(--paper);
   color: var(--fg);
-  font-family: var(--font-brand-sans);
+  /* The brand family is deliberately NOT set here. The reference applies its
+     font on a wrapper inside the React tree, and its Get-In-Touch modal
+     mounts to <body> through a portal — inheriting the document's default
+     system stack (measured: the ref modal h2 computes -apple-system/"Segoe UI"
+     and lays out at 380.8px, which only Segoe produces; the webfont itself
+     measures 396.1px for the same string). Removing the family here keeps
+     main-page inheritance identical while every portaled dialog falls back to
+     the system stack exactly like the reference's own dialogs. */
   font-size: var(--type-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -216,15 +229,32 @@ html.lenis body {
   );
 }
 
-/* Display type is set tight and flush-left by default. */
-h1,
-h2,
-h3 {
+/* Display type is set tight and flush-left by default.
+   Weight 400 + no tracking: measured against the reference's own computed
+   styles — every h1/h2/h3 on the ref renders regular weight with normal
+   letter-spacing (hero, portfolio, clients, FAQ, and the modal title). The
+   500/-0.035em I originally shipped here leaked into exactly the headings
+   that don't carry per-element overrides and dropped glyph widths off the
+   reference geometry.
+
+   Scoped to .brand-root: the portaled Get-In-Touch modal must NOT inherit
+   this rule. On the reference the modal h2 receives no heading styling at
+   all — its 400 weight comes purely from Tailwind preflight's
+   `font-weight: inherit`, its text-wrap stays the default `wrap` (measured:
+   text-wrap: "wrap", not balance), and the element-selector rule must not
+   reach it to keep that anonymous-cascade feel. */
+.brand-root :is(h1, h2, h3) {
   font-family: var(--font-brand-sans);
-  font-weight: 500;
-  letter-spacing: -0.035em;
+  font-weight: 400;
+  letter-spacing: normal;
   line-height: 1.02;
   text-wrap: balance;
+}
+
+/* The in-tree brand scope. See the body rule above for why this wraps the
+   app tree instead of body carrying the family itself. */
+.brand-root {
+  font-family: var(--font-brand-sans);
 }
 
 /* Long words and slugs must never blow out the grid. */

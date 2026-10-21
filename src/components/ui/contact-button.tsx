@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { CSSProperties, MouseEventHandler } from "react";
 import { gsap, SplitText, EASE, prefersReducedMotion } from "@/components/gsap/gsap-config";
 import { cn } from "@/lib/utils";
 
@@ -20,14 +21,29 @@ import { cn } from "@/lib/utils";
  * identical copy parked exactly one line below. Translating the glyph up by
  * 1.3em (100% of the line box) swaps it for its own copy, which is why the
  * effect can reverse mid-flight without the text ever disappearing.
+ *
+ * The modal's Send pill reuses this same anatomy with its own fg colours and
+ * without motion, so the colour story is driven by callers through `style`,
+ * not baked in here: bg stays a white pill for header/footer, and the form's
+ * Send paints its gradient inline.
+ *
+ * `bordered` buys the explicit hairline ring (header CTA only). The footer and
+ * modal CTAs ride borderless — the ref's header appends exactly
+ * `border border-white/20!` and nobody else does.
  */
 export function ContactButton({
   label,
   href,
+  onClick,
+  bordered = false,
+  style,
   className,
 }: {
   label: string;
   href: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  bordered?: boolean;
+  style?: CSSProperties;
   className?: string;
 }) {
   const root = useRef<HTMLAnchorElement>(null);
@@ -96,10 +112,11 @@ export function ContactButton({
     <a
       ref={root}
       href={href}
+      onClick={onClick}
+      style={style}
       className={cn(
-        "group relative flex h-[3.5vw] w-fit items-center justify-center gap-[0.9vw] overflow-hidden whitespace-nowrap rounded-full border border-white/20 bg-white px-[2vw] font-medium text-ink no-underline transition-colors duration-500 ease-out hover:text-white focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)] motion-reduce:transition-none",
-        "max-[1025px]:h-[8vw] max-[1025px]:gap-[1.6vw] max-[1025px]:px-[3.5vw] max-[1025px]:font-normal",
-        "max-md:h-[12vw] max-md:gap-[2.4vw] max-md:px-[5vw] max-md:font-normal",
+        "group relative flex w-fit items-center justify-center gap-[0.9vw] h-[3.5vw] px-[2vw] rounded-full overflow-hidden whitespace-nowrap no-underline font-medium text-[1.5vw] bg-white transition-colors duration-500 ease-out text-[#111111] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[var(--focus)] motion-reduce:transition-none max-[1025px]:gap-[1.6vw] max-[1025px]:h-[8vw] max-[1025px]:px-[3.5vw] max-[1025px]:font-normal max-[1025px]:text-[3vw] max-[1025px]:motion-reduce:transition-none max-md:gap-[2.4vw] max-md:h-[12vw] max-md:px-[5vw] max-md:text-[4.2vw] max-md:motion-reduce:transition-none",
+        bordered && "border border-white/20!",
         className,
       )}
     >
@@ -116,7 +133,7 @@ export function ContactButton({
         className="relative z-10 flex size-[0.5vw] shrink-0 items-center justify-center max-[1025px]:size-[1.5vw] max-md:size-[2.3vw]"
         style={{ marginTop: "0.08em" }}
       >
-        <span className="absolute inset-0 rounded-full bg-ink transition-transform duration-[400ms] ease-in-out [transition-timing-function:cubic-bezier(0.785,0.135,0.15,0.86)] group-hover:scale-[120] motion-reduce:transition-none" />
+        <span className="absolute inset-0 rounded-full bg-[#070707] transition-transform duration-[400ms] ease-in-out [transition-timing-function:cubic-bezier(0.785,0.135,0.15,0.86)] group-hover:scale-[120] motion-reduce:transition-none" />
       </span>
 
       {/* Invisible sizer — reserves the label width so the pill never reflows. */}
