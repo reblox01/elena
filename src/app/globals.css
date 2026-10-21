@@ -1,0 +1,531 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   TOKENS
+   Palette sampled from the reference design. Two rules govern usage:
+
+   1. On the deep ground (#180D08) everything passes AA with cream or accent.
+   2. On the saturated orange ground (#F16B0D → #E61416) white text only
+      measures 3.07:1 — fine for display type (>=24px), a real failure for
+      body copy. So on orange grounds: ink for small text, white for display.
+      See --on-orange-fg / --on-orange-fg-display below.
+   ========================================================================== */
+
+:root {
+  /* -- ground -------------------------------------------------------
+     Neutralized to the reference's exact values: body base rgb(5,5,5),
+     painted section grounds rgb(7,7,7), pure white text. The earlier warm
+     browns (#180D08/#120906/#F4EFE9) were our invention, not the ref's. */
+  --paper: #050505; /* ref body ground */
+  --paper-deep: #070707; /* ref section ground */
+  --ink: #070707; /* dark ink on orange grounds — ref badge text */
+  --cream: #ffffff; /* ref uses literal white for every text element */
+
+  /* -- brand accent ------------------------------------------------- */
+  --accent: oklch(0.68 0.19 52); /* #F06A0E */
+  --accent-hot: oklch(0.72 0.2 48); /* #F16B0D */
+  --accent-deep: oklch(0.53 0.2 33); /* #B01205 */
+  --accent-red: oklch(0.58 0.23 29); /* #E61416 */
+  --accent-ember: oklch(0.62 0.17 40); /* #D8470A */
+  --accent-warm: oklch(0.66 0.16 45); /* #C0300A */
+  --accent-bronze: oklch(0.4 0.1 42); /* #7A1C08 */
+
+  /* -- foreground roles ---------------------------------------------
+     The reference's secondary text is white with alpha (e.g. card bodies
+     text-white/80), so the muted/faint roles are neutral alphas of white. */
+  --fg: #ffffff;
+  --fg-muted: rgb(255 255 255 / 0.8);
+  --fg-faint: rgb(255 255 255 / 0.6);
+
+  /* Foreground roles for saturated orange grounds (portfolio, CTA). */
+  --on-orange-fg: var(--ink); /* 6.79:1 — safe at any size */
+  --on-orange-fg-display: #ffffff; /* 3.07:1 — display sizes only */
+
+  /* -- surfaces ----------------------------------------------------- */
+  --surface-card: oklch(0.95 0.012 85);
+  --surface-veil: oklch(0.16 0.004 60 / 0.72);
+  --rule: oklch(1 0 0 / 0.2);
+  --rule-soft: oklch(1 0 0 / 0.1);
+  --rule-ink: oklch(0.16 0.004 60 / 0.14);
+  --focus: oklch(0.85 0.16 85); /* warm, >=3:1 on both grounds */
+
+  /* -- gradient stops (hero) ---------------------------------------- */
+  --grad-1: #f0600d;
+  --grad-2: #ec690f;
+  --grad-3: #b01205;
+  --grad-4: #d8470a;
+  --grad-5: #c0300a;
+  --grad-6: #7a1c08;
+  --grad-7: #2a1108;
+  --grad-8: #180d08;
+  /* Portfolio stage gradient. Referenced by name in portfolio.tsx — an
+     undefined var() makes the entire background-image declaration invalid and
+     the ground silently disappears, leaving ink-on-dark text unreadable. */
+  --grad-hot: #f16b0d;
+
+  /* -- typography --------------------------------------------------- */
+  /* Raw values are prefixed (--type-*, --font-brand-*) on purpose.
+     @theme inline maps them into Tailwind's own namespaces, and a token named
+     identically to its own mapping (--text-hero: var(--text-hero)) is circular:
+     it resolves to nothing, the utility never generates, and every `text-hero`
+     silently falls back to the browser default. Keep the two name spaces
+     disjoint. */
+  --font-brand-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-brand-mono: var(--font-mono-jb), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Fluid display scale. Unlike the reference's all-vw sizing, each step has
+     its own clamp so large and small type move at different rates — that
+     differential is what creates typographic rhythm. */
+  --type-hero: clamp(2.75rem, 7.5vw, 11rem);
+  --type-section: clamp(2rem, 5.5vw, 6.5rem);
+  --type-sub: clamp(1.5rem, 3vw, 3.25rem);
+  --type-lead: clamp(1.0625rem, 1.35vw, 1.5rem);
+  --type-body: clamp(0.9375rem, 1.05vw, 1.125rem);
+  --type-meta: clamp(0.75rem, 0.85vw, 0.9375rem);
+
+  /* -- spacing (4pt scale) ------------------------------------------ */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 8rem;
+
+  /* -- radius ------------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-pill: 9999px;
+
+  /* -- motion ------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* The reference's signature text-mask curve. */
+  --ease-mask: cubic-bezier(0.625, 0.05, 0, 1);
+  --dur-fast: 180ms;
+  --dur-mid: 320ms;
+  --dur-slow: 620ms;
+
+  /* -- layout ------------------------------------------------------- */
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --measure: 62ch;
+  --shell: 1680px;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+
+  --color-accent: var(--accent);
+  --color-accent-hot: var(--accent-hot);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-red: var(--accent-red);
+  --color-accent-ember: var(--accent-ember);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-bronze: var(--accent-bronze);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-rule: var(--rule);
+  --color-rule-soft: var(--rule-soft);
+
+  /* NOTE: none of these may reference a token of the same name — that is a
+     circular custom property and resolves to the guaranteed-invalid value,
+     which makes the utility silently not exist. Source the raw prefixed names
+     declared in :root above. */
+  --font-display: var(--font-brand-sans);
+  --font-body: var(--font-brand-sans);
+  --font-mono: var(--font-brand-mono);
+
+  --text-hero: var(--type-hero);
+  --text-section: var(--type-section);
+  --text-sub: var(--type-sub);
+  --text-lead: var(--type-lead);
+  --text-body: var(--type-body);
+  --text-meta: var(--type-meta);
+
+  --radius-pill: 9999px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mask: cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+* {
+  border-color: var(--rule);
+}
+
+html {
+  /* clip, not hidden: hidden on <html> breaks position:sticky in some engines.
+     Clip also stops momentum scrolling on iOS without killing sticky. */
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+  background: var(--paper);
+  color: var(--fg);
+  font-family: var(--font-brand-sans);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Lenis drives scrolling via transform; native smooth scroll would fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ==========================================================================
+   SERVICES CARD FILLS — radial reveal mask, transcribed from the reference's
+   stylesheet. Each services card's gradient sits under a radial mask whose
+   radius is the --reveal custom property; the hover tween writes --reveal
+   (100% opens the hovered card, −40% fully masks the previously active one).
+   ========================================================================== */
+.radial-mask-bg-fill {
+  --reveal: 0%;
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    black var(--reveal),
+    transparent min(calc(var(--reveal) + 18%), 100%)
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    black var(--reveal),
+    transparent min(calc(var(--reveal) + 18%), 100%)
+  );
+}
+
+/* Display type is set tight and flush-left by default. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-brand-sans);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+/* Long words and slugs must never blow out the grid. */
+h1,
+h2,
+h3,
+p,
+li,
+a {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   FOCUS
+   The ring appears instantly and is never animated — animating it makes
+   keyboard users miss it.
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* On cream/light grounds the warm ring loses contrast; switch to ink. */
+.on-light :focus-visible {
+  outline-color: var(--ink);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ==========================================================================
+   MOTION PREFERENCE
+   Spatial motion collapses to a <=150ms opacity crossfade rather than being
+   removed entirely, so state changes stay legible without vestibular load.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   KEYFRAMES
+   ========================================================================= */
+
+/* Radix accordion drives these off --radix-accordion-content-height, so the
+   open/close motion animates a real measurement rather than a guessed duration.
+   With prefers-reduced-motion the media query above collapses both to a
+   ~instant state change, which is the correct behaviour for a disclosure. */
+@keyframes acc-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes acc-up {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+}
+
+.gutter {
+  padding-inline: var(--gutter);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+/* Multi-line-capable hover underline (the reference's contact links). A
+   currentColor strip painted along the box bottom grows left-to-right on the
+   parent's hover; unlike text-decoration it stays continuous when the phrase
+   wraps, and it keeps working for keyboard users via :focus-visible. */
+.under-multi {
+  background-image: linear-gradient(currentcolor, currentcolor);
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  padding-bottom: 0.1em;
+  transition: background-size 0.35s var(--ease-out);
+}
+
+.under-multi-parent:hover > .under-multi,
+.under-multi:focus-visible {
+  background-size: 100% 1px;
+}
+
+
+/* Screen-reader-only, still focusable. */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* SplitText mask wrappers. Padding compensates for the mask so glyph edges
+   are not visually clipped during the reveal. */
+.mask {
+  display: inline-block;
+  overflow: clip;
+  padding-inline: 0.06em;
+  margin-inline: -0.06em;
+  box-sizing: content-box;
+  vertical-align: top;
+}
+
+.mask-block {
+  display: block;
+  overflow: clip;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+  box-sizing: content-box;
+}
+
+/* Hidden until its reveal ScrollTrigger fires. Must NOT apply under reduced
+   motion, or content becomes permanently invisible. */
+[data-reveal] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Hero marquee bed                                                           */
+/* ------------------------------------------------------------------------ */
+
+/*
+  The two plate columns behind the hero drift upward forever on their own, at
+  different speeds — 10s and 18s for one full period. Time-based, not
+  scroll-based: the scrub only sharpens them and shrinks the stage, and the
+  drift keeps going underneath that the whole time.
+
+  Pure CSS rather than GSAP. An infinite translate runs on the compositor, costs
+  nothing per frame, and keeps moving if the JS bundle fails — which matters for
+  a decorative layer that sits directly under the first impression.
+
+  The -50.54% is the seam, not a round number. The column holds its four plates
+  twice; one period is 4 plates + 4 gaps, and the element's own height is 8
+  plates + 7 gaps:
+
+      4 * 27vw + 4 * 2.5vw  =  118vw      (one period)
+      8 * 27vw + 7 * 2.5vw  =  233.5vw    (element height)
+      118 / 233.5           =  50.5353%
+
+  Rounding that to 50% leaves a 0.5vw offset that repeats every cycle as a
+  visible jump. It has to track the markup above it: change the plate height or
+  the gap and this figure has to be recomputed, or the loop starts to hitch.
+*/
+@keyframes marquee-scroll-y {
+  0% {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50.5353%);
+  }
+}
+
+.marquee-1 {
+  will-change: transform;
+  animation: 10s linear infinite marquee-scroll-y;
+}
+
+.marquee-2 {
+  will-change: transform;
+  /* Slower on purpose. Matching speeds would read as one flat sliding texture
+     instead of two planes at different depths. */
+  animation: 18s linear infinite marquee-scroll-y;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-1,
+  .marquee-2 {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Portfolio image stack                                                     */
+/* ------------------------------------------------------------------------ */
+
+/*
+  The four plates are stacked in one box and driven by a scrubbed timeline, so
+  plates 2..n have to start parked below the frame — otherwise SSR paints work-04
+  (the topmost z-index) full-bleed and the section flashes the wrong project
+  before the first frame of JS.
+
+  translateY(100%) is exactly what GSAP's `yPercent: 100` produces, so the
+  inline style the timeline sets lands on the same pose with no jump between the
+  pre-animation state and the tween's start.
+
+  Scoped to >=1025px. Below that the stack is a short, non-pinned gallery and
+  every plate should be reachable without a scrub to move it.
+
+  Reduced motion overrides it in CSS rather than being patched from JS, so a
+  visitor who never gets a timeline still sees the list rather than one image.
+*/
+@media (min-width: 1025px) {
+  [data-plate]:nth-child(n + 2) {
+    transform: translateY(100%);
+  }
+}
+
+@media (min-width: 1025px) and (prefers-reduced-motion: reduce) {
+  [data-plate]:nth-child(n + 2) {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Hero artwork reveal                                                        */
+/* ------------------------------------------------------------------------ */
+
+/*
+  A 25%-wide black band sweeps in from the bottom-left corner. `--reveal` is the
+  band's leading edge: while it sits off-canvas (negative) the plate is fully
+  masked out; past 100% it is fully opaque. The intro timeline animates it from
+  -40% to 125% and overshoots, so the tail of the tween has nothing left to do
+  and the plate lands sharp instead of fading in at the end.
+
+  Default is fully-open on purpose. The hidden start state is applied by JS
+  (see `html.js` below), so anyone without JS — and anyone under reduced motion —
+  sees the finished composition immediately rather than an empty frame waiting
+  on a timeline that will never run for them.
+*/
+.hero-mask-reveal {
+  --reveal: 125%;
+  -webkit-mask-image: linear-gradient(
+    to top left,
+    black var(--reveal),
+    transparent calc(var(--reveal) + 25%)
+  );
+  mask-image: linear-gradient(
+    to top left,
+    black var(--reveal),
+    transparent calc(var(--reveal) + 25%)
+  );
+}
+
+/*
+  `html.js` is added by a blocking inline script in <head>, before first paint.
+  Gating on it is what lets the artwork start hidden without also hiding it from
+  visitors who will never get an animation to reveal it. A class beats a
+  useLayoutEffect here: hydration finishes well after the browser has already
+  painted the server HTML, so anything set from an effect flashes.
+*/
+html.js .hero-mask-reveal {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .hero-mask-reveal {
+    opacity: 1;
+  }
+}
