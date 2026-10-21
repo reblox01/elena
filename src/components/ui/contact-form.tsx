@@ -118,7 +118,7 @@ export function ContactForm() {
       ref={formRef}
       noValidate
       onSubmit={onSubmit}
-      className="space-y-[1.2vw] max-md:space-y-[4vw] max-[1025px]:space-y-[4vw]"
+      className="contact-form space-y-[1.2vw] max-md:space-y-[4vw] max-[1025px]:space-y-[4vw]"
     >
       {/*
         Every field lives in its own `w-full` row div on the reference — the
@@ -187,17 +187,18 @@ export function ContactForm() {
           className="flex h-14 items-center rounded-full border bg-white/15 transition-all border-white/20 focus-within:border-[#ff5f00]"
         >
           <div className="relative shrink-0">
-            {/* White label like the ref's config renders it (computed
-                rgb(255,255,255) on their pill) — the light-theme default
-                `text-gray-700` leaves near-black text on the glass pill. No
-                hover colour change: the ref's hover state is unknown and
-                inventing one would be a deviation. */}
+            {/* The ref's exact class list. The light-theme `text-gray-700` it
+                carries is inert on BOTH sides: the form-scope `--form-text`
+                remap rule in globals.css (a mirror of the ref's
+                #contact-form-_r_0_ stylesheet rule) re-points it to white,
+                and being unlayered it also beats hover:text-gray-900 — so the
+                label stays white on hover, as measured on the ref. */}
             <button
               type="button"
               aria-expanded={ddOpen}
               aria-haspopup="listbox"
               onClick={() => setDdOpen((v) => !v)}
-              className="flex h-full cursor-pointer items-center gap-1 pl-4 pr-2 text-sm text-white transition-colors"
+              className="flex h-full cursor-pointer items-center gap-1 pl-4 pr-2 text-sm text-gray-700 transition-colors hover:text-gray-900"
             >
               <span className="text-base">{country.flag}</span>
               <span className="font-normal text-sm">+{country.dial}</span>
@@ -208,21 +209,39 @@ export function ContactForm() {
                 role="listbox"
                 className="absolute left-0 top-full z-50 mt-2 max-h-52 min-w-48 rounded-md border border-gray-200 bg-white py-1"
               >
-                {COUNTRIES.map((c) => (
-                  <button
-                    key={c.code}
-                    data-code={c.code}
-                    type="button"
-                    role="option"
-                    aria-selected={c.code === country.code}
-                    onClick={pick}
-                    className="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-black! transition-colors hover:bg-gray-50"
-                  >
-                    <span>{c.flag}</span>
-                    <span>{c.code}</span>
-                    <span className="ml-auto text-gray-400">+{c.dial}</span>
-                  </button>
-                ))}
+                {/* The ref nests a 12rem scroller (`overflow-y-auto max-h-48`)
+                    inside the clipped box, so the box itself never scrolls:
+                    its height stays 4 + 192 + 4 + borders = 201.67px at 1440,
+                    and the overflow stays contained so the ten options never
+                    grow the modal panel's own scroll area into a scrollbar.
+
+                    One deliberate departure from the ref: its scroller draws
+                    the platform's default scrollbar (track, thumb, arrow
+                    buttons). Per direction we hide it — `.no-scrollbar` keeps
+                    the list fully scrollable with wheel/drag/keyboard but
+                    draws nothing. Side effect of hiding: the ~15px classic
+                    gutter is no longer reserved, so the option rows widen to
+                    the box's padding edge. */}
+                <div className="no-scrollbar overflow-y-auto max-h-48">
+                  {COUNTRIES.map((c) => (
+                    <button
+                      key={c.code}
+                      data-code={c.code}
+                      type="button"
+                      role="option"
+                      aria-selected={c.code === country.code}
+                      onClick={pick}
+                      className={cn(
+                        "flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-left text-sm text-black! transition-colors hover:bg-gray-50",
+                        c.code === country.code && "font-medium text-orange-500",
+                      )}
+                    >
+                      <span>{c.flag}</span>
+                      <span>{c.code}</span>
+                      <span className="ml-auto text-gray-400">+{c.dial}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
